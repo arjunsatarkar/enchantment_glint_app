@@ -1,6 +1,6 @@
 = Enchantment Glint App
 
-Web app to add the Minecraft enchantment glint animation to an image. Try it out. (TODO: link that)
+Web app to add the Minecraft enchantment glint animation to an image. Try it out: https://aps.fyi/enchantment_glint
 
 == Usage
 
