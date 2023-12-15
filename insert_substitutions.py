@@ -8,7 +8,7 @@ INDENT = " " * 8
 with open("modern-gif/dist/index.js") as modern_gif_file:
     modern_gif_src = modern_gif_file.read().removesuffix("\n")
 
-glint_frames_js = "let glint_frames = [];\n"
+glint_frames_js = f"'use strict';\n{INDENT}let glint_frames = [];\n"
 for i, frame_path in enumerate(pathlib.Path("frames/").iterdir()):
     with open(frame_path, "rb") as frame_file:
         glint_frames_js += INDENT + "glint_frames.push(new Image());\n"
