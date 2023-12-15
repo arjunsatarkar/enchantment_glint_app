@@ -1,0 +1,26 @@
+= Enchantment Glint App
+
+Web app to add the Minecraft enchantment glint animation to an image. Try it out. (TODO: link that)
+
+== Usage
+
+Build:
+.....
+make
+.....
+
+Run: open `+build/index.html+` in your browser.
+
+
+== License
+
+MIT license; see LICENSE.txt. This does not apply to the images in the `+frames/+` directory, which aren't my work (see below).
+
+== Acknowledgements
+
+Created in response to https://twitter.com/TetraspaceWest/status/1735372877849911299.
+Inspired by https://github.com/Altpapier/GlintCreator.
+
+I got the enchantment glint frames in `+frames/+` via https://minecraft.fandom.com/wiki/User:MrJam003/Animated_Sprites_Render,
+specifically downloaded from https://mega.nz/folder/GZ1jhK6L#amWjVrNWt0dTiF2dhsYhXw which are originally from
+https://www.minecraft.net/en-us/about-minecraft[Minecraft] Java Edition.

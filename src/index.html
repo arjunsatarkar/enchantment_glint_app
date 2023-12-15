@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Enchantment Glint</title>
+    <style>
+        @media (orientation: landscape) {
+            body {
+                margin-left: 10%;
+                margin-right: 10%;
+            }
+        }
+    </style>
+    <script>
+        "use strict";
+        INSERT_GLINT_FRAMES
+    </script>
+    <script>
+        INSERT_MODERN_GIF_LIBRARY
+    </script>
+    <script>
+        "use strict";
+
+        const WIDTH = 160;
+        const HEIGHT = 160;
+
+        addEventListener("DOMContentLoaded", (_) => {
+            const imageInput = document.querySelector("input#imageInput");
+            document.querySelector("form").addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const canvas = document.createElement("canvas");
+                canvas.width = WIDTH;
+                canvas.height = HEIGHT;
+                const ctx = canvas.getContext("2d");
+
+                const opacity = +document.querySelector("input#opacityInput").value / 100;
+
+                const file = imageInput.files[0];
+                const reader = new FileReader();
+                reader.onload = async (_) => {
+                    const image = new Image();
+                    image.onload = async (_) => {
+                        const encoder = modernGif.createEncoder({
+                            width: WIDTH,
+                            height: HEIGHT,
+                        });
+
+                        async function for_each_frame(glint_frame) {
+                            ctx.drawImage(image, 0, 0);
+
+                            ctx.globalAlpha = opacity;
+                            ctx.drawImage(glint_frame, 0, 0);
+                            ctx.globalAlpha = 1;
+
+                            await encoder.encode({
+                                imageData: canvas,
+                                delay: 100,
+                            });
+
+                            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                        }
+
+                        for (const glint_frame of glint_frames) {
+                            if (glint_frame.complete) {
+                                for_each_frame(glint_frame);
+                            } else {
+                                glint_frame.onload = (_) => for_each_frame(glint_frame);
+                            }
+                        }
+                        const gif = await encoder.flush();
+                        const blob = new Blob([gif], { type: 'image/gif' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.style.display = "none";
+                        a.href = url;
+                        a.download = "enchanted.gif"
+                        document.body.appendChild(a);
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    };
+                    image.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            })
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Add an enchantment glint to an image</h1>
+    <form>
+        <table>
+            <tr>
+                <td>
+                    <label for="imageInput">Image (will be truncated to 160x160):</label>
+                </td>
+                <td>
+                    <input type="file" id="imageInput">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="opacityInput">Glint opacity:</label>
+                </td>
+                <td>
+                    <input type="number" id="opacityInput" min="0" max="100" value="40" size="4">%
+                </td>
+            </tr>
+        </table>
+        <input type="submit" value="Enchant!">
+    </form>
+</body>
+
+</html>
