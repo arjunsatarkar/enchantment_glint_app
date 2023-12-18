@@ -17,42 +17,51 @@
             text-align: right;
         }
     </style>
-    <script>
-        INSERT_GLINT_FRAMES
-    </script>
-    <script>
-        INSERT_MODERN_GIF_LIBRARY
-    </script>
+    <script src="scripts/glintFrames.js"></script>
+    <script src="scripts/modern-gif.js"></script>
     <script>
         "use strict";
 
-        const WIDTH = 160;
-        const HEIGHT = 160;
+        const MAX_SIZE = 160;
 
         addEventListener("DOMContentLoaded", (_) => {
             const imageInput = document.querySelector("input#imageInput");
             document.querySelector("form").addEventListener("submit", (e) => {
                 e.preventDefault();
 
-                const canvas = document.createElement("canvas");
-                canvas.width = WIDTH;
-                canvas.height = HEIGHT;
-                const ctx = canvas.getContext("2d");
-
                 const opacity = +document.querySelector("input#opacityInput").value / 100;
 
                 const file = imageInput.files[0];
+
                 const reader = new FileReader();
                 reader.onload = async (_) => {
                     const image = new Image();
                     image.onload = async (_) => {
+                        let width, height;
+                        if (image.width <= MAX_SIZE && image.height <= MAX_SIZE) {
+                            width = image.width;
+                            height = image.height;
+                        } else if (image.width > image.height) {
+                            width = MAX_SIZE;
+                            height = (image.height / image.width) * MAX_SIZE;
+                        } else {
+                            height = MAX_SIZE;
+                            width = (image.width / image.height) * MAX_SIZE;
+                        }
+                        [width, height] = [Math.floor(width), Math.floor(height)];
+
+                        const canvas = document.createElement("canvas");
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+
                         const encoder = modernGif.createEncoder({
-                            width: WIDTH,
-                            height: HEIGHT,
+                            width: width,
+                            height: height,
                         });
 
                         async function for_each_frame(glint_frame) {
-                            ctx.drawImage(image, 0, 0);
+                            ctx.drawImage(image, 0, 0, width, height);
 
                             ctx.globalAlpha = opacity;
                             ctx.drawImage(glint_frame, 0, 0);
@@ -63,10 +72,10 @@
                                 delay: 100,
                             });
 
-                            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                            ctx.clearRect(0, 0, MAX_SIZE, MAX_SIZE);
                         }
 
-                        for (const glint_frame of glint_frames) {
+                        for (const glint_frame of glintFrames) {
                             if (glint_frame.complete) {
                                 for_each_frame(glint_frame);
                             } else {
@@ -79,7 +88,7 @@
                         const a = document.createElement("a");
                         a.style.display = "none";
                         a.href = url;
-                        a.download = "enchanted.gif"
+                        a.download = `enchanted-${file.name.replace(/\.[^/.]+$/, "")}.gif`
                         document.body.appendChild(a);
                         a.click();
                         URL.revokeObjectURL(url);
@@ -98,7 +107,7 @@
         <table>
             <tr>
                 <td>
-                    <label for="imageInput">Image (will be truncated/extended to 160x160):</label>
+                    <label for="imageInput">Image:</label>
                 </td>
                 <td>
                     <input type="file" id="imageInput">

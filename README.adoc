@@ -4,13 +4,19 @@ Web app to add the Minecraft enchantment glint animation to an image. Try it out
 
 == Usage
 
-Build:
+=== Building
+
+Building requires: https://git-scm.com[git], https://pnpm.io/[pnpm], https://www.python.org/[Python 3], https://pubs.opengroup.org/onlinepubs/9699919799/utilities/make.html[make]
+
 .....
+git submodule init
+git submodule update
 make
 .....
 
-Run: open `+build/index.html+` in your browser.
+=== Running
 
+Serve the `build/` directory, eg. with `+python3 -m http.server -d build/+` or nginx or whatever.
 
 == License
 
