@@ -55,17 +55,39 @@
                         canvas.height = height;
                         const ctx = canvas.getContext("2d");
 
+                        const maskCanvas = document.createElement("canvas");
+                        {
+                            maskCanvas.width = width;
+                            maskCanvas.height = height;
+                            const maskCtx = maskCanvas.getContext("2d");
+                            maskCtx.drawImage(image, 0, 0, width, height);
+                            const imageData = maskCtx.getImageData(0, 0, width, height);
+                            for (let i = 0; i < imageData.data.length; i += 4) {
+                                if (imageData.data[i + 3] == 0) {
+                                    imageData.data[i + 0] = 0;
+                                    imageData.data[i + 1] = 0;
+                                    imageData.data[i + 2] = 0;
+                                    imageData.data[i + 3] = 255;
+                                } else {
+                                    imageData.data[i + 3] = 0;
+                                }
+                            }
+                            maskCtx.putImageData(imageData, 0, 0);
+                        }
+
                         const encoder = modernGif.createEncoder({
                             width: width,
                             height: height,
                         });
 
-                        async function for_each_frame(glint_frame) {
+                        async function prepareFrame(glintFrame) {
                             ctx.drawImage(image, 0, 0, width, height);
 
                             ctx.globalAlpha = opacity;
-                            ctx.drawImage(glint_frame, 0, 0);
+                            ctx.drawImage(glintFrame, 0, 0);
                             ctx.globalAlpha = 1;
+
+                            ctx.drawImage(maskCanvas, 0, 0);
 
                             await encoder.encode({
                                 imageData: canvas,
@@ -75,11 +97,11 @@
                             ctx.clearRect(0, 0, MAX_SIZE, MAX_SIZE);
                         }
 
-                        for (const glint_frame of glintFrames) {
-                            if (glint_frame.complete) {
-                                for_each_frame(glint_frame);
+                        for (const glintFrame of glintFrames) {
+                            if (glintFrame.complete) {
+                                prepareFrame(glintFrame);
                             } else {
-                                glint_frame.onload = (_) => for_each_frame(glint_frame);
+                                glintFrame.onload = (_) => prepareFrame(glintFrame);
                             }
                         }
                         const gif = await encoder.flush();
